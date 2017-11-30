@@ -77,41 +77,20 @@ function ao_extra_async_js($in) {
 }
 
 /* preconnect */
-if ($ao_extra_options['ao_extra_checkbox_field_2']) {
-    add_filter('autoptimize_html_after_minify','ao_extra_preconnect');
+if (!empty($ao_extra_options['ao_extra_text_field_2'])) {
+    add_filter( 'wp_resource_hints', 'ao_extra_preconnect', 10, 2 );
 }
-function ao_extra_preconnect($in) {
-    // create array with preconnectable domains
-    $_ao_preconnectable_domains = array('gravatar.com','wp.com','google-analytics.com','maxcdn.bootstrapcdn.com','fonts.googleapis.com','connect.facebook.net');
-    if ( !empty( get_option('autoptimize_cdn_url','') ) ) {
-        $_ao_preconnectable_domains[] = get_option('autoptimize_cdn_url');
-    }
-    $_ao_preconnectable_domains = apply_filters('ao_extra_filter_preconnectable', $_ao_preconnectable_domains);
-    
-    // extract links from source
-    // future: use filter in AO to get all 3rd party links? but then we miss out on links in JS (e.g. google analytics & facebook connect)
-    preg_match_all('#(?:href|src)\s?=\s?(?:\'|")([^"\']*?)#U',$in,$_matches);
-    
-    // build preconnect-string
-    foreach ($_matches[1] as $_match) {
-        if ( $_match !== str_replace($_ao_preconnectable_domains,'',$_match) ) {
-            $_parsed_match = parse_url($_match);
-            if ( empty($_parsed_match["scheme"]) ) {
-                $_preconnect_domain = "//".$_parsed_match["host"];
-            } else {
-                $_preconnect_domain = $_parsed_match["scheme"]."://".$_parsed_match["host"];
-            }
-            $_preconnects[] = "<link rel=\"preconnect\" href=\"".$_preconnect_domain."\">";
-        }
+function ao_extra_preconnect($hints, $relation_type) {
+    global $ao_extra_options;
+
+    // get setting and store in array
+    $_to_be_preconnected = array_filter(array_map('trim',explode(",",$ao_extra_options['ao_extra_text_field_2'])));
+
+	if ( 'preconnect' === $relation_type ) {
+        $hints = array_merge($hints, $_to_be_preconnected);	  
     }
     
-    // you can overrule
-    $_preconnects = apply_filters('ao_extra_filter_preconnects',$_preconnects);
-    
-    // inject preconnect links in HTML
-    $_preconnect_string = implode(array_unique($_preconnects));
-    $out = substr_replace($in, $_preconnect_string."<link", strpos($in, "<link"), strlen("<link"));
-    return $out;
+    return $hints;
 }
 
 /* admin page */
@@ -148,9 +127,9 @@ function ao_extra_settings_init(  ) {
 		'ao_extra_pluginPage_section'
 	);
    	add_settings_field( 
-		'ao_extra_checkbox_field_2', 
+		'ao_extra_text_field_2', 
 		__( 'Preconnect to 3rd party domains', 'autoptimize' ), 
-		'ao_extra_checkbox_field_2_render', 
+		'ao_extra_text_field_2_render', 
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
 	);
@@ -187,13 +166,13 @@ function ao_extra_checkbox_field_1_render() {
     <?php
 }
 
-function ao_extra_checkbox_field_2_render() { 
+function ao_extra_text_field_2_render() { 
 	global $ao_extra_options;
 	?>
     <label>
-	<input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_2]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_2'], 1 ); ?> value='1'>
+	<input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_2]' value='<?php echo $ao_extra_options['ao_extra_text_field_2']; ?>'><br />
 	<?php
-    _e('Will try to intelligently add preconnect links for well-known 3rd party domains (somewhat experimental).','autoptimize');
+    _e('Add 3rd party domains you want the browser to preconnect to, separated by comma\'s. Make sure to include the correct protocol (HTTP or HTTPS).','autoptimize');
     ?>
     </label>
     <?php
