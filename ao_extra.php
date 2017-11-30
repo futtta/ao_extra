@@ -77,9 +77,42 @@ function ao_extra_async_js($in) {
 }
 
 /* preconnect */
-add_filter('autoptimize_html_after_minify','ao_extra_preconnect');
-
-
+if ($ao_extra_options['ao_extra_checkbox_field_2']) {
+    add_filter('autoptimize_html_after_minify','ao_extra_preconnect');
+}
+function ao_extra_preconnect($in) {
+    // create array with preconnectable domains
+    $_ao_preconnectable_domains = array('gravatar.com','wp.com','google-analytics.com','maxcdn.bootstrapcdn.com','fonts.googleapis.com','connect.facebook.net');
+    if ( !empty( get_option('autoptimize_cdn_url','') ) ) {
+        $_ao_preconnectable_domains[] = get_option('autoptimize_cdn_url');
+    }
+    $_ao_preconnectable_domains = apply_filters('ao_extra_filter_preconnectable', $_ao_preconnectable_domains);
+    
+    // extract links from source
+    // future: use filter in AO to get all 3rd party links? but then we miss out on links in JS (e.g. google analytics & facebook connect)
+    preg_match_all('#(?:href|src)\s?=\s?(?:\'|")([^"\']*?)#U',$in,$_matches);
+    
+    // build preconnect-string
+    foreach ($_matches[1] as $_match) {
+        if ( $_match !== str_replace($_ao_preconnectable_domains,'',$_match) ) {
+            $_parsed_match = parse_url($_match);
+            if ( empty($_parsed_match["scheme"]) ) {
+                $_preconnect_domain = "//".$_parsed_match["host"];
+            } else {
+                $_preconnect_domain = $_parsed_match["scheme"]."://".$_parsed_match["host"];
+            }
+            $_preconnects[] = "<link rel=\"preconnect\" href=\"".$_preconnect_domain."\">";
+        }
+    }
+    
+    // you can overrule
+    $_preconnects = apply_filters('ao_extra_filter_preconnects',$_preconnects);
+    
+    // inject preconnect links in HTML
+    $_preconnect_string = implode(array_unique($_preconnects));
+    $out = substr_replace($in, $_preconnect_string."<link", strpos($in, "<link"), strlen("<link"));
+    return $out;
+}
 
 /* admin page */
 if ( is_admin() ) {
@@ -114,6 +147,13 @@ function ao_extra_settings_init(  ) {
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
 	);
+   	add_settings_field( 
+		'ao_extra_checkbox_field_2', 
+		__( 'Preconnect to 3rd party domains', 'autoptimize' ), 
+		'ao_extra_checkbox_field_2_render', 
+		'ao_extra_settings', 
+		'ao_extra_pluginPage_section'
+	);
     add_settings_field( 
 		'ao_extra_text_field_3', 
 		__( 'Async Javascript-files', 'autoptimize' ), 
@@ -142,6 +182,18 @@ function ao_extra_checkbox_field_1_render() {
 	<input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_1]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_1'], 1 ); ?> value='1'>
 	<?php
     _e('Removes WordPress\' core emojis\' inline CSS, inline JavaScript, and an otherwise un-autoptimized JavaScript file.','autoptimize');
+    ?>
+    </label>
+    <?php
+}
+
+function ao_extra_checkbox_field_2_render() { 
+	global $ao_extra_options;
+	?>
+    <label>
+	<input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_2]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_2'], 1 ); ?> value='1'>
+	<?php
+    _e('Will try to intelligently add preconnect links for well-known 3rd party domains (somewhat experimental).','autoptimize');
     ?>
     </label>
     <?php
