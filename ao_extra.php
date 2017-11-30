@@ -12,10 +12,10 @@ $ao_extra_options = get_option( 'ao_extra_settings' );
 
 /* disable emojis */
 if ($ao_extra_options['ao_extra_checkbox_field_1']) {
-    add_action( 'init', 'ao_disable_emojis' );
+    add_action( 'init', 'ao_extra_disable_emojis' );
 }
 
-function ao_disable_emojis() {
+function ao_extra_disable_emojis() {
   // all actions related to emojis
   remove_action( 'admin_print_styles', 'print_emoji_styles' );
   remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
@@ -26,10 +26,10 @@ function ao_disable_emojis() {
   remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
 
   // filter to remove TinyMCE emojis
-  add_filter( 'tiny_mce_plugins', 'ao_disable_emojis_tinymce' );
+  add_filter( 'tiny_mce_plugins', 'ao_extra_disable_emojis_tinymce' );
 }
 
-function ao_disable_emojis_tinymce( $plugins ) {
+function ao_extra_disable_emojis_tinymce( $plugins ) {
   if ( is_array( $plugins ) ) {
     return array_diff( $plugins, array( 'wpemoji' ) );
   } else {
@@ -39,11 +39,11 @@ function ao_disable_emojis_tinymce( $plugins ) {
 
 /* remove version from query string */
 if ($ao_extra_options['ao_extra_checkbox_field_0']) {
-    add_filter( 'script_loader_src', 'ao_remove_qs', 15, 1 );
-    add_filter( 'style_loader_src', 'ao_remove_qs', 15, 1 );
+    add_filter( 'script_loader_src', 'ao_extra_remove_qs', 15, 1 );
+    add_filter( 'style_loader_src', 'ao_extra_remove_qs', 15, 1 );
 }
 
-function ao_remove_qs( $src ) {
+function ao_extra_remove_qs( $src ) {
         if ( strpos($src, '?ver=') ) {
                 $src = remove_query_arg( 'ver', $src );
         }
@@ -52,10 +52,10 @@ function ao_remove_qs( $src ) {
 
 /* async JS */
 if (!empty($ao_extra_options['ao_extra_text_field_3'])) {
-    add_filter('autoptimize_filter_js_exclude','ao_async_js',11,1);
+    add_filter('autoptimize_filter_js_exclude','ao_extra_async_js',11,1);
 }
 
-function ao_async_js($in) {
+function ao_extra_async_js($in) {
     global $ao_extra_options;
     
     // get exclusions
@@ -75,6 +75,11 @@ function ao_async_js($in) {
     $AO_excl_w_async = array_merge( $AO_JSexclArrayIn, $AO_asynced_JS );
     return $AO_excl_w_async;
 }
+
+/* preconnect */
+add_filter('autoptimize_html_after_minify','ao_extra_preconnect');
+
+
 
 /* admin page */
 if ( is_admin() ) {
