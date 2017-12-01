@@ -98,7 +98,7 @@ function ao_extra_preconnect($hints, $relation_type) {
         }
         
         if ( !empty($_preconn_domain) ) {
-            $_new_hints[] = array('crossorigin' => 'crossorigin', 'href' => $_preconn_domain);
+            $_new_hints[] = array('crossorigin' => 'anonymous', 'href' => $_preconn_domain);
         }
     }
 
@@ -194,7 +194,7 @@ function ao_extra_text_field_2_render() {
     <label>
 	<input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_2]' value='<?php echo $ao_extra_options['ao_extra_text_field_2']; ?>'><br />
 	<?php
-    _e('Add 3rd party domains you want the browser to preconnect to, separated by comma\'s. Make sure to include the correct protocol (HTTP or HTTPS).','autoptimize');
+    _e('Add 3rd party domains you want the browser to <a href="https://www.keycdn.com/support/preconnect/#primary" target="_blank">preconnect</a> to, separated by comma\'s. Make sure to include the correct protocol (HTTP or HTTPS).','autoptimize');
     ?>
     </label>
     <?php
