@@ -87,9 +87,24 @@ function ao_extra_preconnect($hints, $relation_type) {
     $_to_be_preconnected = array_filter(array_map('trim',explode(",",$ao_extra_options['ao_extra_text_field_2'])));
     $_to_be_preconnected = apply_filters( 'ao_extra_tobepreconnected', $_to_be_preconnected );
 
+    // walk array, extract domain and add to new array with crossorigin attribute
+    foreach ($_to_be_preconnected as $_preconn_single) {
+        $_preconn_parsed = parse_url($_preconn_single);
+        
+        if ( is_array($_preconn_parsed) && empty($_preconn_parsed['scheme']) ) {
+            $_preconn_domain = "//".$_preconn_parsed['host'];
+        } else if ( is_array($_preconn_parsed) ) {
+            $_preconn_domain = $_preconn_parsed['scheme']."://".$_preconn_parsed['host'];
+        }
+        
+        if ( !empty($_preconn_domain) ) {
+            $_new_hints[] = array('crossorigin' => 'crossorigin', 'href' => $_preconn_domain);
+        }
+    }
+
     // merge in wordpress' preconnect hints
-	if ( 'preconnect' === $relation_type ) {
-        $hints = array_merge($hints, $_to_be_preconnected);	  
+	if ( 'preconnect' === $relation_type && !empty($_new_hints) ) {
+        $hints = array_merge($hints, $_new_hints);	  
     }
     
     return $hints;
