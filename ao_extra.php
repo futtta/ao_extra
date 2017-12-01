@@ -87,6 +87,7 @@ function ao_extra_preconnect($hints, $relation_type) {
     $_to_be_preconnected = array_filter(array_map('trim',explode(",",$ao_extra_options['ao_extra_text_field_2'])));
     $_to_be_preconnected = apply_filters( 'ao_extra_tobepreconnected', $_to_be_preconnected );
 
+    // merge in wordpress' preconnect hints
 	if ( 'preconnect' === $relation_type ) {
         $hints = array_merge($hints, $_to_be_preconnected);	  
     }
@@ -143,6 +144,11 @@ function ao_extra_settings_init(  ) {
     );
 }
 
+function add_aoextra_tab($in) {
+	$in=array_merge($in,array('ao_extra' => 'Extra'));
+	return $in;
+}
+
 function ao_extra_checkbox_field_0_render() { 
 	global $ao_extra_options;
 	?>
@@ -197,7 +203,6 @@ function ao_extra_settings_section_callback() {
     <?php
 }
 
-
 function ao_extra_options_page() { 
 	?>
     <style>
@@ -216,9 +221,4 @@ function ao_extra_options_page() {
 		?>
 	</form>
 	<?php
-}
-
-function add_aoextra_tab($in) {
-	$in=array_merge($in,array('ao_extra' => 'Extra'));
-	return $in;
 }
