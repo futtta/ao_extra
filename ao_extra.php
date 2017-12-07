@@ -337,7 +337,7 @@ function ao_extra_radio_field_4_render() {
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="1" <?php if (!in_array($_googlef,array(2,3,4))) {echo "checked"; }  ?>><?php _e('Leave as is','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="2" <?php checked(2, $_googlef, true); ?>><?php _e('Remove Google Fonts','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="3" <?php checked(3, $_googlef, true); ?>><?php _e('Combine and link in head','autoptimize')?><br/>
-    <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="4" <?php checked(4, $_googlef, true); ?>><?php _e('Combina and load async with webfont.js','autoptimize')?><br/>
+    <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="4" <?php checked(4, $_googlef, true); ?>><?php _e('Combine and load async with webfont.js','autoptimize')?><br/>
     <?php
 }
 
