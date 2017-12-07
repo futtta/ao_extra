@@ -4,7 +4,7 @@ Plugin Name: Autoptimize Extra
 Plugin URI: http://optimizingmatters.com/autoptimize/
 Description: extra perf. optimization options
 Author: Optimizing Matters
-Version: 0.2.0
+Version: 0.3.0
 Author URI: http://optimizingmatters.com/ 
 */
 
