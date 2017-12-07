@@ -12,7 +12,9 @@ Author URI: http://optimizingmatters.com/
 $ao_extra_options = get_option( 'ao_extra_settings' );
 
 // initialize the extra's
-add_action('init','ao_extra_init');
+if ( check_ao_version() ) {
+    add_action('init','ao_extra_init');
+}
 function ao_extra_init() {
     global $ao_extra_options;
     
@@ -226,7 +228,7 @@ function ao_extra_preconnectgooglefonts($in) {
 
 
 /* admin page */
-if ( is_admin() ) {
+if ( is_admin() && check_ao_version() ) {
     add_action( 'admin_menu', 'ao_extra_add_admin_menu' );
     add_action( 'admin_init', 'ao_extra_settings_init' );
     add_filter( 'autoptimize_filter_settingsscreen_tabs','add_aoextra_tab' );
@@ -337,7 +339,7 @@ function ao_extra_radio_field_4_render() {
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="1" <?php if (!in_array($_googlef,array(2,3,4))) {echo "checked"; }  ?>><?php _e('Leave as is','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="2" <?php checked(2, $_googlef, true); ?>><?php _e('Remove Google Fonts','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="3" <?php checked(3, $_googlef, true); ?>><?php _e('Combine and link in head','autoptimize')?><br/>
-    <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="4" <?php checked(4, $_googlef, true); ?>><?php _e('Combine and load async with webfont.js','autoptimize')?><br/>
+    <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="4" <?php checked(4, $_googlef, true); ?>><?php _e('Combine and load fonts asynchronously with <a href="https://github.com/typekit/webfontloader#readme" target="_blank">webfont.js</a>','autoptimize')?><br/>
     <?php
 }
 
@@ -369,4 +371,13 @@ function ao_extra_options_page() {
 		?>
 	</form>
 	<?php
+}
+
+function check_ao_version() {
+    $ao_version = get_option("autoptimize_version","");
+    if ( $ao_version && version_compare($ao_version, "2.2.0", ">") ) {
+        return false;
+    } else {
+        return true;
+    }
 }
