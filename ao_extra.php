@@ -122,7 +122,14 @@ function ao_extra_preconnect($hints, $relation_type) {
         }
         
         if ( !empty($_preconn_domain) ) {
-            $_new_hints[] = array('href' => $_preconn_domain);
+            $_preconn_hint = array('href' => $_preconn_domain);
+            // fonts don't get preconnected unless crossorigin flag is set, non-fonts don't get preconnected if origin flag is set
+            // so hardcode fonts.gstatic.com do come with crossorigin and have filter to add other domains if needed
+            $_preconn_crossorigin = apply_filters( 'ao_extra_filter_preconn_crossorigin', array('https://fonts.gstatic.com') );
+            if ( in_array( $_preconn_domain, $_preconn_crossorigin ) ) {
+                $_preconn_hint['crossorigin'] = 'anonymous';
+            }
+            $_new_hints[] = $_preconn_hint;
         }
     }
 
@@ -221,11 +228,15 @@ function ao_extra_gfonts($in) {
 
 function ao_extra_preconnectgooglefonts($in) {
     global $ao_extra_options;
-    // preconnect to fonts.googleapis.com speed up download of static font-files
-    $in[] = "https://fonts.googleapis.com";
+    // preconnect to fonts.gstatic.com speed up download of static font-files
+    $in[] = "https://fonts.gstatic.com";
+    if ( $ao_extra_options['ao_extra_radio_field_4'] == "4" ) {
+        // and more preconnects for webfont.js
+        $in[] = "https://ajax.googleapis.com/";
+        $in[] = "https://fonts.googleapis.com";
+    }
     return $in;
 }
-
 
 /* admin page */
 if ( is_admin() && check_ao_version() ) {
