@@ -269,14 +269,14 @@ function ao_extra_settings_init(  ) {
     );
    	add_settings_field( 
 		'ao_extra_text_field_2', 
-		__( 'Preconnect to 3rd party domains (<em>advanced</em>)', 'autoptimize' ), 
+		__( 'Preconnect to 3rd party domains <em>(advanced users)</em>', 'autoptimize' ), 
 		'ao_extra_text_field_2_render', 
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
 	);
     add_settings_field( 
 		'ao_extra_text_field_3', 
-		__( 'Async Javascript-files (<em>advanced</em>)', 'autoptimize' ), 
+		__( 'Async Javascript-files <em>(advanced users)</em>', 'autoptimize' ), 
 		'ao_extra_text_field_3_render', 
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
