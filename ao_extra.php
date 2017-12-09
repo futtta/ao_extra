@@ -124,7 +124,7 @@ function ao_extra_preconnect($hints, $relation_type) {
         if ( !empty($_preconn_domain) ) {
             $_preconn_hint = array('href' => $_preconn_domain);
             // fonts don't get preconnected unless crossorigin flag is set, non-fonts don't get preconnected if origin flag is set
-            // so hardcode fonts.gstatic.com do come with crossorigin and have filter to add other domains if needed
+            // so hardcode fonts.gstatic.com to come with crossorigin and have filter to add other domains if needed
             $_preconn_crossorigin = apply_filters( 'ao_extra_filter_preconn_crossorigin', array('https://fonts.gstatic.com') );
             if ( in_array( $_preconn_domain, $_preconn_crossorigin ) ) {
                 $_preconn_hint['crossorigin'] = 'anonymous';
