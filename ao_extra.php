@@ -122,7 +122,7 @@ function ao_extra_preconnect($hints, $relation_type) {
         }
         
         if ( !empty($_preconn_domain) ) {
-            $_new_hints[] = array('crossorigin' => 'anonymous', 'href' => $_preconn_domain);
+            $_new_hints[] = array('href' => $_preconn_domain);
         }
     }
 
