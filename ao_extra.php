@@ -143,7 +143,7 @@ function ao_extra_remove_gfonts($in) {
 function ao_extra_gfonts($in) {
     global $ao_extra_options;
     
-	// extract fonts
+	// extract fonts, partly based on wp rocket's extraction code
 	$_without_comments = preg_replace( '/<!--(.*)-->/Uis', '', $in );
     preg_match_all( '#<link(?:\s+(?:(?!href\s*=\s*)[^>])+)?(?:\s+href\s*=\s*([\'"])((?:https?:)?\/\/fonts\.googleapis\.com\/css(?:(?!\1).)+)\1)(?:\s+[^>]*)?>#iU', $_without_comments, $matches );
 
@@ -260,24 +260,24 @@ function ao_extra_settings_init(  ) {
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
 	);
+    add_settings_field( 
+		'ao_extra_radio_field_4', 
+		__( 'Google Fonts', 'autoptimize' ), 
+		'ao_extra_radio_field_4_render', 
+		'ao_extra_settings', 
+		'ao_extra_pluginPage_section'
+    );
    	add_settings_field( 
 		'ao_extra_text_field_2', 
-		__( 'Preconnect to 3rd party domains', 'autoptimize' ), 
+		__( 'Preconnect to 3rd party domains (<em>advanced</em>)', 'autoptimize' ), 
 		'ao_extra_text_field_2_render', 
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
 	);
     add_settings_field( 
 		'ao_extra_text_field_3', 
-		__( 'Async Javascript-files', 'autoptimize' ), 
+		__( 'Async Javascript-files (<em>advanced</em>)', 'autoptimize' ), 
 		'ao_extra_text_field_3_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
-    );
-    add_settings_field( 
-		'ao_extra_radio_field_4', 
-		__( 'Google Fonts', 'autoptimize' ), 
-		'ao_extra_radio_field_4_render', 
 		'ao_extra_settings', 
 		'ao_extra_pluginPage_section'
     );
@@ -356,7 +356,7 @@ function ao_extra_settings_section_callback() {
 function ao_extra_options_page() { 
 	?>
     <style>
-        #ao_settings_form {background: white;border: 1px solid #ccc;padding: 1px 15px;margin: 15px 10px 10px 0;width:80%;}
+        #ao_settings_form {background: white;border: 1px solid #ccc;padding: 1px 15px;margin: 15px 10px 10px 0;}
         #ao_settings_form .form-table th {font-weight: 100;}
         #ao_extra_descr{font-size: 120%;}
     </style>
