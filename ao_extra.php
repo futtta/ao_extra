@@ -134,8 +134,8 @@ function ao_extra_preconnect($hints, $relation_type) {
     }
 
     // merge in wordpress' preconnect hints
-	if ( 'preconnect' === $relation_type && !empty($_new_hints) ) {
-        $hints = array_merge($hints, $_new_hints);	  
+    if ( 'preconnect' === $relation_type && !empty($_new_hints) ) {
+        $hints = array_merge($hints, $_new_hints);      
     }
     
     return $hints;
@@ -150,25 +150,25 @@ function ao_extra_remove_gfonts($in) {
 function ao_extra_gfonts($in) {
     global $ao_extra_options;
     
-	// extract fonts, partly based on wp rocket's extraction code
-	$_without_comments = preg_replace( '/<!--(.*)-->/Uis', '', $in );
+    // extract fonts, partly based on wp rocket's extraction code
+    $_without_comments = preg_replace( '/<!--(.*)-->/Uis', '', $in );
     preg_match_all( '#<link(?:\s+(?:(?!href\s*=\s*)[^>])+)?(?:\s+href\s*=\s*([\'"])((?:https?:)?\/\/fonts\.googleapis\.com\/css(?:(?!\1).)+)\1)(?:\s+[^>]*)?>#iU', $_without_comments, $matches );
 
-	$i = 0;
-	$fontsCollection = array();
-	if ( ! $matches[2] ) {
-		return $in;
-	}
+    $i = 0;
+    $fontsCollection = array();
+    if ( ! $matches[2] ) {
+        return $in;
+    }
     
     // store them in $fonts array
-	foreach ( $matches[2] as $font ) {
-		if ( ! preg_match( '/rel=["\']dns-prefetch["\']/', $matches[0][ $i ] ) ) {
-			// Get fonts name.
-			// $font = str_replace( array( '%7C', '%7c' ) , '|', $font );
+    foreach ( $matches[2] as $font ) {
+        if ( ! preg_match( '/rel=["\']dns-prefetch["\']/', $matches[0][ $i ] ) ) {
+            // Get fonts name.
+            // $font = str_replace( array( '%7C', '%7c' ) , '|', $font );
             $font = urldecode($font);
-			$font = explode( 'family=', $font );
-			$font = ( isset( $font[1] ) ) ? explode( '&', $font[1] ) : array();
-			// Add font to $fonts[$i] but make sure not to pollute with an empty family
+            $font = explode( 'family=', $font );
+            $font = ( isset( $font[1] ) ) ? explode( '&', $font[1] ) : array();
+            // Add font to $fonts[$i] but make sure not to pollute with an empty family
             $_thisfont = array_values( array_filter( explode( '|', reset( $font ) ) ) );
             if ( !empty($_thisfont) ) {
                 $fontsCollection[$i]["fonts"] = $_thisfont;
@@ -179,14 +179,14 @@ function ao_extra_gfonts($in) {
                     $fontsCollection[$i]["subsets"] = explode( ',', $subset[1] );
                 }
             }
-		    // And remove Google Fonts.
-		    $in = str_replace( $matches[0][ $i ], '', $in );
-		}
-	    $i++;
-	}
+            // And remove Google Fonts.
+            $in = str_replace( $matches[0][ $i ], '', $in );
+        }
+        $i++;
+    }
 
     if ( $ao_extra_options['ao_extra_radio_field_4'] == "3" ) {
-        // as link
+        // aggregate & link
         $_fontsString="";
         foreach ($fontsCollection as $font) {
             $_fontsString .= trim( implode( '|' , $font["fonts"] ), '|' );
@@ -203,7 +203,7 @@ function ao_extra_gfonts($in) {
             $_fontsOut = '<link rel="stylesheet" id="ao_optimized_gfonts" href="https://fonts.googleapis.com/css?family=' . $_fontsString . '" />';
         }
     } else if ( $ao_extra_options['ao_extra_radio_field_4'] == "4" ) {
-        // webfont.js impl.
+        // aggregate & load async (webfont.js impl.)
         $_fontsArray = array();
         foreach ($fontsCollection as $_fonts) {
             if ( !empty( $_fonts["subsets"] ) ) {
@@ -226,7 +226,7 @@ function ao_extra_gfonts($in) {
  
     // inject in HTML
     $out = substr_replace($in, $_fontsOut."<link", strpos($in, "<link"), strlen("<link"));
-	return $out;
+    return $out;
 }
 
 function ao_extra_preconnectgooglefonts($in) {
@@ -249,65 +249,65 @@ if ( is_admin() && check_ao_version() ) {
 }
 
 function ao_extra_add_admin_menu(  ) { 
-	add_submenu_page( null, 'ao_extra', 'ao_extra', 'manage_options', 'ao_extra', 'ao_extra_options_page' );
+    add_submenu_page( null, 'ao_extra', 'ao_extra', 'manage_options', 'ao_extra', 'ao_extra_options_page' );
 }
 
 function ao_extra_settings_init(  ) { 
-	register_setting( 'ao_extra_settings', 'ao_extra_settings' );
-	add_settings_section(
-		'ao_extra_pluginPage_section', 
-		__( 'Extra Auto-Optimizations', 'autoptimize' ), 
-		'ao_extra_settings_section_callback', 
-		'ao_extra_settings'
-	);
-	add_settings_field( 
-		'ao_extra_checkbox_field_1', 
-		__( 'Remove emojis', 'autoptimize' ), 
-		'ao_extra_checkbox_field_1_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
-	);
-	add_settings_field( 
-		'ao_extra_checkbox_field_0', 
-		__( 'Remove query strings from static resources', 'autoptimize' ), 
-		'ao_extra_checkbox_field_0_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
-	);
-    add_settings_field( 
-		'ao_extra_radio_field_4', 
-		__( 'Google Fonts', 'autoptimize' ), 
-		'ao_extra_radio_field_4_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
+    register_setting( 'ao_extra_settings', 'ao_extra_settings' );
+    add_settings_section(
+        'ao_extra_pluginPage_section', 
+        __( 'Extra Auto-Optimizations', 'autoptimize' ), 
+        'ao_extra_settings_section_callback', 
+        'ao_extra_settings'
     );
-   	add_settings_field( 
-		'ao_extra_text_field_2', 
-		__( 'Preconnect to 3rd party domains <em>(advanced users)</em>', 'autoptimize' ), 
-		'ao_extra_text_field_2_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
-	);
     add_settings_field( 
-		'ao_extra_text_field_3', 
-		__( 'Async Javascript-files <em>(advanced users)</em>', 'autoptimize' ), 
-		'ao_extra_text_field_3_render', 
-		'ao_extra_settings', 
-		'ao_extra_pluginPage_section'
+        'ao_extra_checkbox_field_1', 
+        __( 'Remove emojis', 'autoptimize' ), 
+        'ao_extra_checkbox_field_1_render', 
+        'ao_extra_settings', 
+        'ao_extra_pluginPage_section'
+    );
+    add_settings_field( 
+        'ao_extra_checkbox_field_0', 
+        __( 'Remove query strings from static resources', 'autoptimize' ), 
+        'ao_extra_checkbox_field_0_render', 
+        'ao_extra_settings', 
+        'ao_extra_pluginPage_section'
+    );
+    add_settings_field( 
+        'ao_extra_radio_field_4', 
+        __( 'Google Fonts', 'autoptimize' ), 
+        'ao_extra_radio_field_4_render', 
+        'ao_extra_settings', 
+        'ao_extra_pluginPage_section'
+    );
+       add_settings_field( 
+        'ao_extra_text_field_2', 
+        __( 'Preconnect to 3rd party domains <em>(advanced users)</em>', 'autoptimize' ), 
+        'ao_extra_text_field_2_render', 
+        'ao_extra_settings', 
+        'ao_extra_pluginPage_section'
+    );
+    add_settings_field( 
+        'ao_extra_text_field_3', 
+        __( 'Async Javascript-files <em>(advanced users)</em>', 'autoptimize' ), 
+        'ao_extra_text_field_3_render', 
+        'ao_extra_settings', 
+        'ao_extra_pluginPage_section'
     );
 }
 
 function add_aoextra_tab($in) {
-	$in=array_merge($in,array('ao_extra' => 'Extra'));
-	return $in;
+    $in=array_merge($in,array('ao_extra' => 'Extra'));
+    return $in;
 }
 
 function ao_extra_checkbox_field_0_render() { 
-	global $ao_extra_options;
-	?>
+    global $ao_extra_options;
+    ?>
     <label>
-	<input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_0]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_0'], 1 ); ?> value='1'>
-	<?php
+    <input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_0]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_0'], 1 ); ?> value='1'>
+    <?php
     _e('Removing query strings (or more specificaly the <code>ver</code> parameter) will not improve load time, but might improve performance scores.','autoptimize');
     ?>
     </label>
@@ -315,11 +315,11 @@ function ao_extra_checkbox_field_0_render() {
 }
 
 function ao_extra_checkbox_field_1_render() { 
-	global $ao_extra_options;
-	?>
+    global $ao_extra_options;
+    ?>
     <label>
-	<input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_1]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_1'], 1 ); ?> value='1'>
-	<?php
+    <input type='checkbox' name='ao_extra_settings[ao_extra_checkbox_field_1]' <?php checked( $ao_extra_options['ao_extra_checkbox_field_1'], 1 ); ?> value='1'>
+    <?php
     _e('Removes WordPress\' core emojis\' inline CSS, inline JavaScript, and an otherwise un-autoptimized JavaScript file.','autoptimize');
     ?>
     </label>
@@ -327,11 +327,11 @@ function ao_extra_checkbox_field_1_render() {
 }
 
 function ao_extra_text_field_2_render() { 
-	global $ao_extra_options;
-	?>
+    global $ao_extra_options;
+    ?>
     <label>
-	<input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_2]' value='<?php echo $ao_extra_options['ao_extra_text_field_2']; ?>'><br />
-	<?php
+    <input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_2]' value='<?php echo $ao_extra_options['ao_extra_text_field_2']; ?>'><br />
+    <?php
     _e('Add 3rd party domains you want the browser to <a href="https://www.keycdn.com/support/preconnect/#primary" target="_blank">preconnect</a> to, separated by comma\'s. Make sure to include the correct protocol (HTTP or HTTPS).','autoptimize');
     ?>
     </label>
@@ -339,17 +339,17 @@ function ao_extra_text_field_2_render() {
 }
 
 function ao_extra_text_field_3_render() { 
-   	global $ao_extra_options;
-	?>
-	<input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_3]' value='<?php echo $ao_extra_options['ao_extra_text_field_3']; ?>'><br />
-	<?php
+       global $ao_extra_options;
+    ?>
+    <input type='text' style='width:80%' name='ao_extra_settings[ao_extra_text_field_3]' value='<?php echo $ao_extra_options['ao_extra_text_field_3']; ?>'><br />
+    <?php
     _e('Comma-separated list of local or 3rd party JS-files that should loaded with the <code>async</code> flag. JS-files from your own site will be automatically excluded if added here.','autoptimize');
 }
 
 function ao_extra_radio_field_4_render() { 
-   	global $ao_extra_options;
+       global $ao_extra_options;
     $_googlef = $ao_extra_options['ao_extra_radio_field_4'];
-	?>
+    ?>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="1" <?php if (!in_array($_googlef,array(2,3,4))) {echo "checked"; }  ?>><?php _e('Leave as is','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="2" <?php checked(2, $_googlef, true); ?>><?php _e('Remove Google Fonts','autoptimize')?><br/>
     <input type="radio" name="ao_extra_settings[ao_extra_radio_field_4]" value="3" <?php checked(3, $_googlef, true); ?>><?php _e('Combine and link in head','autoptimize')?><br/>
@@ -361,30 +361,30 @@ function ao_extra_settings_section_callback() {
     ?>
     <span id='ao_extra_descr'>
     <?php
-	_e( 'The following settings can improve your site\'s performance even more.', 'autoptimize' );
+    _e( 'The following settings can improve your site\'s performance even more.', 'autoptimize' );
     ?>
     </span>
     <?php
 }
 
 function ao_extra_options_page() { 
-	?>
+    ?>
     <style>
         #ao_settings_form {background: white;border: 1px solid #ccc;padding: 1px 15px;margin: 15px 10px 10px 0;}
         #ao_settings_form .form-table th {font-weight: 100;}
         #ao_extra_descr{font-size: 120%;}
     </style>
     <div class="wrap">
-	<h1><?php _e('Autoptimize Settings','autoptimize'); ?></h1>
+    <h1><?php _e('Autoptimize Settings','autoptimize'); ?></h1>
     <?php echo autoptimizeConfig::ao_admin_tabs(); ?>
-	<form id='ao_settings_form' action='options.php' method='post'>
-		<?php
-		settings_fields( 'ao_extra_settings' );
-		do_settings_sections( 'ao_extra_settings' );
-		submit_button();
-		?>
-	</form>
-	<?php
+    <form id='ao_settings_form' action='options.php' method='post'>
+        <?php
+        settings_fields( 'ao_extra_settings' );
+        do_settings_sections( 'ao_extra_settings' );
+        submit_button();
+        ?>
+    </form>
+    <?php
 }
 
 function check_ao_version() {
