@@ -189,15 +189,17 @@ function ao_extra_gfonts($in) {
         // aggregate & link
         $_fontsString="";
         foreach ($fontsCollection as $font) {
-            $_fontsString .= trim( implode( '|' , $font["fonts"] ), '|' );
+            $_fontsString .= '|'.trim( implode( '|' , $font["fonts"] ), '|' );
             if ( !empty( $font["subsets"] ) ) {
                 $subsetString .= implode( ',', $font["subsets"] ); 
             }
         }
-        
+                    
         if (!empty($subsetString)) {
             $_fontsString = $_fontsString."#038;subset=".$subsetString;
         }
+
+        $_fontsString = str_replace( '|', '%7C', ltrim($_fontsString,'|') );
         
         if ( ! empty( $_fontsString ) ) {
             $_fontsOut = '<link rel="stylesheet" id="ao_optimized_gfonts" href="https://fonts.googleapis.com/css?family=' . $_fontsString . '" />';
