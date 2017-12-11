@@ -168,14 +168,17 @@ function ao_extra_gfonts($in) {
             $font = urldecode($font);
 			$font = explode( 'family=', $font );
 			$font = ( isset( $font[1] ) ) ? explode( '&', $font[1] ) : array();
-			// Add font to $fonts[$i]
-		    $fontsCollection[$i]["fonts"] = explode( '|', reset( $font ) );
-		    // And add subset if any
-			$subset = ( is_array( $font ) ) ? end( $font ) : '';
-		    if ( false !== strpos( $subset, 'subset=' ) ) {
-				$subset = explode( 'subset=', $subset );
-				$fontsCollection[$i]["subsets"] = explode( ',', $subset[1] );
-		    }
+			// Add font to $fonts[$i] but make sure not to pollute with an empty family
+            $_thisfont = array_values( array_filter( explode( '|', reset( $font ) ) ) );
+            if ( !empty($_thisfont) ) {
+                $fontsCollection[$i]["fonts"] = $_thisfont;
+                // And add subset if any
+                $subset = ( is_array( $font ) ) ? end( $font ) : '';
+                if ( false !== strpos( $subset, 'subset=' ) ) {
+                    $subset = explode( 'subset=', $subset );
+                    $fontsCollection[$i]["subsets"] = explode( ',', $subset[1] );
+                }
+            }
 		    // And remove Google Fonts.
 		    $in = str_replace( $matches[0][ $i ], '', $in );
 		}
